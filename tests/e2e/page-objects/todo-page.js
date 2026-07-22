@@ -5,6 +5,12 @@ class TodoPage {
     this.descriptionInput = page.getByLabel('Description');
     this.dueDateInput = page.getByLabel('Due Date');
     this.addTaskButton = page.getByRole('button', { name: 'Add Task' });
+    this.activeSection = page.locator('section', {
+      has: page.getByRole('heading', { name: 'Active Tasks' }),
+    });
+    this.completedSection = page.locator('section', {
+      has: page.getByRole('heading', { name: 'Completed Tasks' }),
+    });
   }
 
   async goto() {
@@ -22,10 +28,23 @@ class TodoPage {
     await this.addTaskButton.click();
   }
 
-  taskRow(title) {
-    return this.page.locator('li', {
+  activeTaskRow(title) {
+    return this.activeSection.locator('li', {
       has: this.page.getByRole('heading', { name: title }),
     });
+  }
+
+  completedTaskRow(title) {
+    return this.completedSection.locator('li', {
+      has: this.page.getByRole('heading', { name: title }),
+    });
+  }
+
+  async fetchTasksBySearch(searchText) {
+    const response = await this.page.request.get(
+      `http://localhost:3030/api/items?search=${encodeURIComponent(searchText)}`
+    );
+    return response.json();
   }
 }
 
